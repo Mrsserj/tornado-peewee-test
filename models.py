@@ -15,9 +15,9 @@ class BaseModel(peewee.Model):
 class User(BaseModel):
     username = peewee.CharField(unique=True)
     password = SimplePasswordField('weqwe')
-    first_name = peewee.CharField()
-    last_name = peewee.CharField()
-    age = peewee.IntegerField()
+    first_name = peewee.CharField(null=True)
+    last_name = peewee.CharField(null=True)
+    age = peewee.IntegerField(null=True)
     is_superuser = peewee.BooleanField(default=False)
 
 

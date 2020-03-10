@@ -16,6 +16,16 @@ from application import application
 
 def main():
     db.create_tables([m[1] for m in getmembers(models) if m[0] in models.__all__])
+    if User.select().count() == 0:
+        User.create(
+            username='test',
+            password='test12345',
+            first_name='test',
+            last_name='test',
+            age=18,
+            is_superuser=True
+        )
+
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(application)
     if sys.platform == 'win32':
@@ -24,6 +34,7 @@ def main():
     http_server.listen(port)
     print("server address is 0.0.0.0:", str(port))
     tornado.ioloop.IOLoop.instance().start()
+
 
 if __name__ == "__main__":
     main()

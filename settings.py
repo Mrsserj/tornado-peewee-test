@@ -6,6 +6,8 @@ db = PooledPostgresqlDatabase(
     password='123',
     host='localhost')
 
+login_url = "/login"
+
 
 if __name__ == "__main__":
     print(db.database)

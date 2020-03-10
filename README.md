@@ -1,3 +1,11 @@
-Tornado Simple Test
+Tornado PeeWee Test
 
-* Example tornado application with auth and peewee ORM.
+ Пример ассинхронного приложения с использованием tornado и ORM Peewee
+ 
+ Для запуска приложения:
+ 
+ * установите необходимые модули `pip install -r requirements`
+ * отредактируйте файл settings.py согласно настройкам вашего сервера СУБД Postgres
+ * запустите сервер командой `>python server.py`
+ 
+Интерфейс приложения по умолчанию доступен по адресу http://127.0.0.1:5000
