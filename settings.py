@@ -1,6 +1,6 @@
-from peewee import PostgresqlDatabase
+from peewee_async import PooledPostgresqlDatabase
 
-db = PostgresqlDatabase(
+db = PooledPostgresqlDatabase(
     database='test',
     user='postgres',
     password='123',

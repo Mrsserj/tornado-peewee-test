@@ -3,3 +3,4 @@ psycopg2
 peewee
 peewee-async
 aiopg
+peewee-extra-fields

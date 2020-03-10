@@ -1,9 +1,9 @@
-from peewee_async import Manager
 import peewee
 from settings import db
 import asyncio
+from peewee_extra_fields import SimplePasswordField
 
-loop = asyncio.new_event_loop()
+#loop = asyncio.new_event_loop()
 __all__ = ["User", "UserTest", "Question", "Answer", "UserAnswer"]
 
 class BaseModel(peewee.Model):
@@ -13,11 +13,12 @@ class BaseModel(peewee.Model):
 
 
 class User(BaseModel):
-    username = peewee.CharField()
-    password = peewee.CharField()
+    username = peewee.CharField(unique=True)
+    password = SimplePasswordField('weqwe')
     first_name = peewee.CharField()
     last_name = peewee.CharField()
     age = peewee.IntegerField()
+    is_superuser = peewee.BooleanField(default=False)
 
 
 class UserTest(BaseModel):
@@ -42,5 +43,5 @@ class UserAnswer(BaseModel):
     answer = peewee.ForeignKeyField(Answer)
 
 
-objects = Manager(db, loop=loop)
-objects.database.allow_sync = False # this will raise AssertionError on ANY sync call
+#objects = Manager(db, loop=loop)
+#objects.database.allow_sync = False # this will raise AssertionError on ANY sync call

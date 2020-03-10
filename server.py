@@ -11,6 +11,7 @@ from settings import db
 import models
 from models import *
 
+
 from application import application
 
 def main():
