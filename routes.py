@@ -1,10 +1,10 @@
 # coding=utf-8
 
 
-from handlers import VoteHandler, CreateUserHandler
+from handlers import TestListHandler, CreateUserHandler
 
 url = [
-    (r'/', VoteHandler),
+    (r'/', TestListHandler),
     #(r'/login', UserLoginHandler),
     (r'/register', CreateUserHandler),
     #(r'/logout', UserLogoutHandler),

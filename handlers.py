@@ -2,7 +2,7 @@ from tornado.web import RequestHandler
 from models import User
 
 
-class VoteHandler(RequestHandler):
+class TestListHandler(RequestHandler):
     def get(self):
         self.render("index.html", title="Список тестов")
 
