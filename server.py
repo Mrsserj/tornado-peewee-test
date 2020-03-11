@@ -25,6 +25,20 @@ def main():
             age=18,
             is_superuser=True
         )
+    if UserTest.select().count() == 0:
+        for i in range(2):
+            UserTest.create(name=f'Когнитивные способности #{i+1}')
+
+    for tst in UserTest.select().where(UserTest.is_public == True):
+        if Question.select().where(Question.test_==tst).count() == 0:
+            for i in range(2):
+                Question.create(test_=tst, text=f'Трудный вопрос №{i+1}')
+    for q in Question.select():
+        if Answer.select().where(Answer.quest==q).count() == 0:
+            Answer.create(quest=q, text="Правильный ответ", is_correct=True)
+            Answer.create(quest=q, text="Неправильный ответ")
+
+
 
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(application)

@@ -1,12 +1,12 @@
 # coding=utf-8
 
 
-from handlers import TestListHandler, CreateUserHandler, UserLoginHandler
+from handlers import TestListHandler, CreateUserHandler, UserLoginHandler, UserLogoutHandler
 
 url = [
     (r'/', TestListHandler),
     (r'/login', UserLoginHandler),
-    (r'/register', CreateUserHandler),
-    #(r'/logout', UserLogoutHandler),
+    (r'/registry', CreateUserHandler),
+    (r'/logout', UserLogoutHandler),
     #(r'.*', PageNotFoundHandler),
 ]
