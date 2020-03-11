@@ -1,11 +1,16 @@
 from tornado.web import RequestHandler, authenticated
 from tornado.escape import url_escape, json_encode
-from models import User, UserTest, Question, Answer
+from models import User, UserTest, Question, Answer, UserAnswer
 
 
 class BaseHandler(RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user")
+
+    def get_user_model(self):
+        user = User.select().where(User.username == self.get_current_user().decode('utf-8').strip('"')).first()
+        return user
+
 
 
 class TestListHandler(BaseHandler):
@@ -82,10 +87,58 @@ class QuestionHandler(BaseHandler):
             else:
                 q_ids.append(q.id)
 
-        awnsw = await self.application.objects.execute(Answer.select()
-                                                       .where(Answer.quest == question))
+        awnsw = question.get_answer()
 
-        return self.render("question.html", question=question, q_ids=';'.join(str(q_ids)), awnsw=awnsw)
+        return self.render("question.html", question=question, q_ids=';'.join([str(i) for i in q_ids]), awnsw=awnsw)
+
+    @authenticated
+    async def post(self):
+        q_ids = self.get_argument("q_ids", "")
+        q_id = self.get_argument("q_id", "")
+        answer_id = self.get_argument("answer", "")
+        answ = None
+        user = self.get_user_model()
+        if q_id:
+            current_quest = Question.select().where(Question.id == int(q_id)).first()
+        if answer_id:
+            answ = Answer.select().where(Answer.id == int(answer_id)).first()
+
+            if answ:
+                current_quest = answ.quest
+
+        if user:
+            u_answ = await self.application.objects.get_or_create(UserAnswer,
+                user_=user,
+                quest=current_quest,
+            )
+            if answ and u_answ[1]:
+                u_answ[0].answer = answ.is_correct
+                await self.application.objects.update(u_answ[0])
+        if q_ids:
+            next_q_id = q_ids.split(';').pop(0)
+            question = await self.application.objects.execute(Question.select()
+                                                           .join(UserTest, on=(Question.test_ == UserTest.id))
+                                                           .where(Question.id == int(next_q_id)))
+            next_ids = q_ids.split(';')[1:]
+        else:
+            return self.redirect(f'/result?t_id={current_quest.test_.id}')
+        return self.render("question.html",
+                           question=question[0],
+                           q_ids=';'.join(next_ids),
+                           awnsw=question[0].get_answer())
+
+
+class ResultHandler(BaseHandler):
+    @authenticated
+    async def get(self):
+        t_id = self.get_argument("t_id", "")
+        answ = await self.application.objects.execute(UserAnswer.select().join(Question).join(UserTest)
+                                                      .where(UserTest.id == int(t_id),
+                                                             UserAnswer.user_ == self.get_user_model()))
+
+        if not answ:
+            return self.redirect(f'/quest?tid={t_id}')
+        return self.render("result.html", answers=answ, title=answ[0].quest.test_.name if answ else 'Тест не пройден')
 
 class PageNotFoundHandler(BaseHandler):
 

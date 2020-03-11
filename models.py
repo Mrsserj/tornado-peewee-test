@@ -1,7 +1,7 @@
 import peewee
 from settings import db
-import asyncio
 from peewee_extra_fields import SimplePasswordField
+from datetime import datetime
 
 #loop = asyncio.new_event_loop()
 __all__ = ["User", "UserTest", "Question", "Answer", "UserAnswer"]
@@ -31,6 +31,9 @@ class Question(BaseModel):
     order = peewee.IntegerField(default=10)
     text = peewee.CharField()
 
+    def get_answer(self):
+        return Answer.select().where(Answer.quest == self)
+
 
 class Answer(BaseModel):
     quest = peewee.ForeignKeyField(Question)
@@ -39,8 +42,10 @@ class Answer(BaseModel):
 
 
 class UserAnswer(BaseModel):
+    resp_date = peewee.DateTimeField(default=datetime.now())
     user_ = peewee.ForeignKeyField(User)
-    answer = peewee.ForeignKeyField(Answer)
+    quest = peewee.ForeignKeyField(Question)
+    answer = peewee.BooleanField(null=True)
 
 
 #objects = Manager(db, loop=loop)

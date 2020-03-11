@@ -2,7 +2,7 @@
 
 
 from handlers import TestListHandler, CreateUserHandler, UserLoginHandler, UserLogoutHandler, QuestionHandler, \
-    PageNotFoundHandler
+    PageNotFoundHandler, ResultHandler
 
 url = [
     (r'/', TestListHandler),
@@ -10,5 +10,6 @@ url = [
     (r'/registry', CreateUserHandler),
     (r'/logout', UserLogoutHandler),
     (r'/quest', QuestionHandler),
+    (r'/result', ResultHandler),
     (r'.*', PageNotFoundHandler),
 ]
