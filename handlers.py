@@ -44,11 +44,12 @@ class UserLoginHandler(BaseHandler):
     async def post(self):
         username = self.get_argument("login", "")
         password = self.get_argument("password", "")
-        auth = await self.application.objects.get(User, username=username, password=password)
-        try:
-            self.set_current_user(auth.username)
+        auth = await self.application.objects.execute(User.select().where(User.username==username,
+                                                                          User.password==password))
+        if auth:
+            self.set_current_user(auth[0].username)
             self.redirect(self.get_argument("next", u"/"))
-        except User.DoesNotExist:
+        else:
             error_msg = u"?error=" + url_escape("Login incorrect")
             self.redirect(u"/login" + error_msg)
 
