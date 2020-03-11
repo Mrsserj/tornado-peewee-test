@@ -2,9 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ escape(question.test_.name) }}</title>
 </head>
 <body>
-
+    <h1>{{ escape(question.test_.name) }}</h1>
+    <form method="post" action="question.html">
+        <p>{{ escape(question.text) }}</p>
+        <div>
+            <input type="hidden" value="{{ q_ids }}" name="q_ids">
+            {% for a in awnsw %}
+            <input type="radio" name="answer" value="{{ a.id }}" id="answChoice{{ a.id }}">
+                <label for="answChoice{{ a.id }}">{{ a.text }}</label>
+            <br/>
+            {% end %}
+        </div>
+        <div>
+            <button type="submit">Ответить</button>
+        </div>
+    </form>
 </body>
 </html>

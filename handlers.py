@@ -1,6 +1,6 @@
 from tornado.web import RequestHandler, authenticated
 from tornado.escape import url_escape, json_encode
-from models import User, UserTest
+from models import User, UserTest, Question, Answer
 
 
 class BaseHandler(RequestHandler):
@@ -64,3 +64,31 @@ class UserLogoutHandler(BaseHandler):
         def get(self):
             self.clear_cookie("user")
             self.redirect(self.get_argument("next", "/login"))
+
+
+class QuestionHandler(BaseHandler):
+
+    @authenticated
+    async def get(self):
+        tid = self.get_argument("tid", 0)
+        question = None
+        q_ids = []
+        for q in await self.application.objects.execute(Question.select()
+                                                           .join(UserTest, on=(Question.test_ == UserTest.id))
+                                                           .where(UserTest.id == tid)
+                                                           .order_by(Question.order, Question.id)):
+            if not question:
+                question = q
+            else:
+                q_ids.append(q.id)
+
+        awnsw = await self.application.objects.execute(Answer.select()
+                                                       .where(Answer.quest == question))
+
+        return self.render("question.html", question=question, q_ids=';'.join(str(q_ids)), awnsw=awnsw)
+
+class PageNotFoundHandler(BaseHandler):
+
+    @authenticated
+    def get(self):
+        self.render("404.html")
