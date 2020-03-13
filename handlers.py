@@ -7,8 +7,9 @@ class BaseHandler(RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user")
 
-    def get_user_model(self):
-        user = User.select().where(User.username == self.get_current_user().decode('utf-8').strip('"')).first()
+    async def get_user_model(self):
+        username = self.get_current_user().decode('utf-8').strip('"')
+        user = await self.application.objects.get(User, User.username == username)
         return user
 
 
@@ -97,11 +98,11 @@ class QuestionHandler(BaseHandler):
         q_id = self.get_argument("q_id", "")
         answer_id = self.get_argument("answer", "")
         answ = None
-        user = self.get_user_model()
+        user = await self.get_user_model()
         if q_id:
-            current_quest = Question.select().where(Question.id == int(q_id)).first()
+            current_quest = await self.application.objects.get(Question, Question.id == int(q_id))
         if answer_id:
-            answ = Answer.select().where(Answer.id == int(answer_id)).first()
+            answ = await self.application.objects.get(Answer, Answer.id == int(answer_id))
 
             if answ:
                 current_quest = answ.quest
@@ -134,7 +135,7 @@ class ResultHandler(BaseHandler):
         t_id = self.get_argument("t_id", "")
         answ = await self.application.objects.execute(UserAnswer.select().join(Question).join(UserTest)
                                                       .where(UserTest.id == int(t_id),
-                                                             UserAnswer.user_ == self.get_user_model()))
+                                                             UserAnswer.user_ == await self.get_user_model()))
 
         if not answ:
             return self.redirect(f'/quest?tid={t_id}')
