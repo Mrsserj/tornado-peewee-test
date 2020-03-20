@@ -4,15 +4,14 @@ import tornado.ioloop
 import tornado.options
 import tornado.httpserver
 import asyncio
-import os
 import sys
 from inspect import getmembers
-from settings import db
+from settings import db, PORT
 import models
 from models import *
 
-
 from application import application
+
 
 def main():
     db.create_tables([m[1] for m in getmembers(models) if m[0] in models.__all__])
@@ -27,26 +26,23 @@ def main():
         )
     if UserTest.select().count() == 0:
         for i in range(2):
-            UserTest.create(name=f'Когнитивные способности #{i+1}')
+            UserTest.create(name=f'Когнитивные способности #{i + 1}')
 
-    for tst in UserTest.select().where(UserTest.is_public == True):
-        if Question.select().where(Question.test_==tst).count() == 0:
+    for tst in UserTest.select().where(UserTest.is_public is True):
+        if Question.select().where(Question.test_ == tst).count() == 0:
             for i in range(2):
-                Question.create(test_=tst, text=f'Трудный вопрос №{i+1}')
+                Question.create(test_=tst, text=f'Трудный вопрос №{i + 1}')
     for q in Question.select():
-        if Answer.select().where(Answer.quest==q).count() == 0:
+        if Answer.select().where(Answer.quest == q).count() == 0:
             Answer.create(quest=q, text="Правильный ответ", is_correct=True)
             Answer.create(quest=q, text="Неправильный ответ")
-
-
 
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(application)
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    port = int(os.environ.get("PORT", 5000))
-    http_server.listen(port)
-    print("server address is 0.0.0.0:", str(port))
+    http_server.listen(PORT)
+    print(f'server address is 0.0.0.0:{PORT}')
     tornado.ioloop.IOLoop.instance().start()
 
 

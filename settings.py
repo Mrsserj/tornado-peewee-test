@@ -7,6 +7,7 @@ db = PooledPostgresqlDatabase(
     host='localhost')
 
 login_url = "/login"
+PORT = 5000
 
 
 if __name__ == "__main__":

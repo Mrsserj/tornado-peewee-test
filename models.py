@@ -3,11 +3,13 @@ from settings import db
 from peewee_extra_fields import SimplePasswordField
 from datetime import datetime
 
-#loop = asyncio.new_event_loop()
+# loop = asyncio.new_event_loop()
 __all__ = ["User", "UserTest", "Question", "Answer", "UserAnswer"]
+
 
 class BaseModel(peewee.Model):
     """A base model that will use our Postgresql database"""
+
     class Meta:
         database = db
 
@@ -47,6 +49,5 @@ class UserAnswer(BaseModel):
     quest = peewee.ForeignKeyField(Question)
     answer = peewee.BooleanField(null=True)
 
-
-#objects = Manager(db, loop=loop)
-#objects.database.allow_sync = False # this will raise AssertionError on ANY sync call
+# objects = Manager(db, loop=loop)
+# objects.database.allow_sync = False # this will raise AssertionError on ANY sync call

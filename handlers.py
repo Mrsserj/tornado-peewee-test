@@ -13,13 +13,12 @@ class BaseHandler(RequestHandler):
         return user
 
 
-
 class TestListHandler(BaseHandler):
 
     @authenticated
     async def get(self):
-        tests = await self.application.objects.execute(UserTest.select().where(UserTest.is_public == True))
-        self.render("index.html", title="Список тестов", items=tests)
+        tests = await self.application.objects.execute(UserTest.select().where(UserTest.is_public is True))
+        await self.render("index.html", title="Список тестов", items=tests)
 
 
 class CreateUserHandler(BaseHandler):
@@ -31,8 +30,8 @@ class CreateUserHandler(BaseHandler):
         password = self.get_argument("password", "")
         last_name = self.get_argument("last_name", "")
         first_name = self.get_argument("first_name", "")
-        age = self.get_argument("age", 18)
-        #TODO сделать проверки
+        age = self.get_argument("age", "18")
+        # TODO сделать проверки
         User.create(
             username=username,
             password=password,
@@ -50,8 +49,8 @@ class UserLoginHandler(BaseHandler):
     async def post(self):
         username = self.get_argument("login", "")
         password = self.get_argument("password", "")
-        auth = await self.application.objects.execute(User.select().where(User.username==username,
-                                                                          User.password==password))
+        auth = await self.application.objects.execute(User.select().where(User.username == username,
+                                                                          User.password == password))
         if auth:
             self.set_current_user(auth[0].username)
             self.redirect(self.get_argument("next", u"/"))
@@ -67,22 +66,22 @@ class UserLoginHandler(BaseHandler):
 
 
 class UserLogoutHandler(BaseHandler):
-        def get(self):
-            self.clear_cookie("user")
-            self.redirect(self.get_argument("next", "/login"))
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect(self.get_argument("next", "/login"))
 
 
 class QuestionHandler(BaseHandler):
 
     @authenticated
     async def get(self):
-        tid = self.get_argument("tid", 0)
+        tid = self.get_argument("tid", "0")
         question = None
         q_ids = []
         for q in await self.application.objects.execute(Question.select()
-                                                           .join(UserTest, on=(Question.test_ == UserTest.id))
-                                                           .where(UserTest.id == tid)
-                                                           .order_by(Question.order, Question.id)):
+                                                                .join(UserTest, on=(Question.test_ == UserTest.id))
+                                                                .where(UserTest.id == tid)
+                                                                .order_by(Question.order, Question.id)):
             if not question:
                 question = q
             else:
@@ -98,6 +97,7 @@ class QuestionHandler(BaseHandler):
         q_id = self.get_argument("q_id", "")
         answer_id = self.get_argument("answer", "")
         answ = None
+        current_quest = None
         user = await self.get_user_model()
         if q_id:
             current_quest = await self.application.objects.get(Question, Question.id == int(q_id))
@@ -109,17 +109,17 @@ class QuestionHandler(BaseHandler):
 
         if user:
             u_answ = await self.application.objects.get_or_create(UserAnswer,
-                user_=user,
-                quest=current_quest,
-            )
+                                                                  user_=user,
+                                                                  quest=current_quest,
+                                                                  )
             if answ and u_answ[1]:
                 u_answ[0].answer = answ.is_correct
                 await self.application.objects.update(u_answ[0])
         if q_ids:
             next_q_id = q_ids.split(';').pop(0)
             question = await self.application.objects.execute(Question.select()
-                                                           .join(UserTest, on=(Question.test_ == UserTest.id))
-                                                           .where(Question.id == int(next_q_id)))
+                                                              .join(UserTest, on=(Question.test_ == UserTest.id))
+                                                              .where(Question.id == int(next_q_id)))
             next_ids = q_ids.split(';')[1:]
         else:
             return self.redirect(f'/result?t_id={current_quest.test_.id}')
@@ -140,6 +140,7 @@ class ResultHandler(BaseHandler):
         if not answ:
             return self.redirect(f'/quest?tid={t_id}')
         return self.render("result.html", answers=answ, title=answ[0].quest.test_.name if answ else 'Тест не пройден')
+
 
 class PageNotFoundHandler(BaseHandler):
 
