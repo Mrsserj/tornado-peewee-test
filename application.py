@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from routes import url
+from routes import urls
 import tornado.web
 from peewee_async import Manager
 import asyncio
@@ -10,7 +10,7 @@ loop = asyncio.new_event_loop()
 
 
 application = tornado.web.Application(
-    handlers=url,
+    handlers=urls,
     template_path="templates",
     login_url=login_url,
     cookie_secret="sdfsd7f68sf6sdfd8f7f6s8df68sl"
