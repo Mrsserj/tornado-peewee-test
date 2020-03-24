@@ -37,7 +37,6 @@ def main():
             Answer.create(quest=q, text="Правильный ответ", is_correct=True)
             Answer.create(quest=q, text="Неправильный ответ")
 
-    tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(application)
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
